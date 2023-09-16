@@ -18,7 +18,11 @@ class Omok:
         self.turn = Stone.BLACK
         self.coords = []
         self.images = {}
-        self.all_coords = [(x * GRID_SIZE + 25, y * GRID_SIZE + 25) for x in range(GRID_NUM) for y in range(GRID_NUM)]
+        self.all_coords = [
+            (x * GRID_SIZE + 25, y * GRID_SIZE + 25)
+            for x in range(GRID_NUM)
+            for y in range(GRID_NUM)
+        ]
         self.font = pygame.font.Font("NotoSans-Regular.ttf", 20)
 
         self.set_images()
@@ -138,8 +142,9 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
             elif event.type == MOUSEBUTTONUP:
-                if (not omok.is_position_invalid(event.pos) and
-                        omok.is_position_empty(event.pos)):
+                if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
+                    event.pos
+                ):
                     omok.append_stone(event.pos)
 
         if omok.is_game_over:
