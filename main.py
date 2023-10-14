@@ -24,6 +24,7 @@ class Omok:
             for y in range(GRID_NUM)
         ]
         self.font = pygame.font.Font("NotoSans-Regular.ttf", 20)
+        self.winner_stone = Stone.EMPTY
 
         self.set_images()
         self.surface.blit(self.images["board"], (0, 0))
@@ -63,6 +64,7 @@ class Omok:
         self.id += 1
         if self.check_game_over(coord, self.turn):
             self.is_game_over = True
+            self.winner_stone = self.turn
         self.turn = Stone.BLACK if self.turn == Stone.WHITE else Stone.WHITE
 
     def get_coord_contain_position(self, position):
@@ -97,13 +99,7 @@ class Omok:
 
     def check_game_over(self, position, stone):
         x, y = self.get_point(self.get_coord_contain_position(position))
-        if self.is_board_full():
-            self.show_winner_msg(stone)
-            return True
-        elif self.rule.is_game_over(x, y, stone):
-            self.show_winner_msg(stone)
-            return True
-        return False
+        return self.is_board_full() or self.rule.is_game_over(x, y, stone)
 
     def make_text(self, text, left, top):
         surf = self.font.render(text, False, BLACK, BG_COLOR)
@@ -111,7 +107,8 @@ class Omok:
         rect.center = (left, top)
         self.surface.blit(surf, rect)
 
-    def show_winner_msg(self, stone):
+    def show_winner_msg(self):
+        stone = self.winner_stone
         msg = {
             stone.EMPTY: "",
             stone.BLACK: "Black Win!!",
@@ -136,23 +133,25 @@ def main():
     surface.fill(BG_COLOR)
 
     omok = Omok(surface)
+    is_running = True
 
-    while True:
+    while is_running:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
             elif event.type == MOUSEBUTTONUP:
                 if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
-                    event.pos
+                        event.pos
                 ):
                     omok.append_stone(event.pos)
-
-        if omok.is_game_over:
-            pygame.quit()
 
         omok.draw_stones()
         pygame.display.update()
         fps_clock.tick(fps)
+
+        if omok.is_game_over:
+            omok.show_winner_msg()
+            is_running = False
 
 
 if __name__ == "__main__":
