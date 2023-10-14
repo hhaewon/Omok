@@ -346,7 +346,6 @@ class Omok:
                         ai_weight += weight_sum
         return ai_weight - player_weight
 
-
 def main():
     pygame.init()
     surface = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
