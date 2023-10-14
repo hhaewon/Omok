@@ -25,6 +25,8 @@ class Omok:
         ]
         self.font = pygame.font.Font("NotoSans-Regular.ttf", 20)
         self.winner_stone = Stone.EMPTY
+        self.aiX = None
+        self.aiY = None
 
         self.set_images()
         self.surface.blit(self.images["board"], (0, 0))
@@ -56,7 +58,7 @@ class Omok:
                 case Stone.WHITE.value:
                     self.draw_stone(Stone.WHITE, x, y)
 
-    def append_stone(self, position):
+    def player_append_stone(self, position):
         coord = self.get_coord_contain_position(position)
         x, y = self.get_point(coord)
         self.coords.append(coord)
@@ -64,8 +66,19 @@ class Omok:
         self.id += 1
         if self.check_game_over(coord, self.turn):
             self.is_game_over = True
-            self.winner_stone = self.turn
-        self.turn = Stone.BLACK if self.turn == Stone.WHITE else Stone.WHITE
+            self.winner_stone = Stone.BLACK
+        self.turn = Stone.WHITE
+
+    def ai_append_stone(self):
+        self.alpha_beta_pruning(0, float('-inf'), float('inf'))
+        coord = self.get_coord(self.aiX, self.aiY)
+        self.coords.append(coord)
+        self.board[self.aiY][self.aiX] = Stone.WHITE
+        self.id += 1
+        if self.check_game_over(coord, self.turn):
+            self.is_game_over = True
+            self.winner_stone = Stone.WHITE
+        self.turn = Stone.BLACK
 
     def get_coord_contain_position(self, position):
         for coord in self.all_coords:
@@ -80,6 +93,12 @@ class Omok:
         x, y = coord
         x = (x - 25) // GRID_SIZE
         y = (y - 25) // GRID_SIZE
+        return x, y
+
+    @staticmethod
+    def get_coord(x, y):
+        x = x * GRID_SIZE + 25
+        y = y * GRID_SIZE + 25
         return x, y
 
     def is_position_invalid(self, position):
@@ -125,6 +144,88 @@ class Omok:
             pygame.time.delay(200)
         self.make_text(msg[stone], center_x, 30)
 
+    def alpha_beta_pruning(self, depth, alpha, beta):
+        dir_x = [-1, 1, -1, 1, 0, 0, 1, -1]
+        dir_y = [0, 0, -1, 1, -1, 1, -1, 1]
+
+        if depth == 3:
+            return self.evaluate()
+
+        if depth % 2 == 0:
+            v = float('-inf')
+            pruning = False
+
+            for x in range(15):
+                for y in range(15):
+                    cur_stone = self.board[y][x]
+                    flag = False
+
+                    if cur_stone == Stone.EMPTY:
+                        for k in range(8):
+                            nx = x + dir_x[k]
+                            ny = y + dir_y[k]
+
+                            if Rule.is_invalid(nx, ny):
+                                continue
+                            if self.board[ny][nx] != Stone.EMPTY:
+                                flag = True
+                                break
+
+                        if flag:
+                            self.board[y][x] = Stone.WHITE
+                            temp = self.alpha_beta_pruning(depth + 1, alpha, beta)
+
+                            if v < temp:
+                                v = temp
+                                if depth == 0:
+                                    self.aiX = x
+                                    self.aiY = y
+                            self.board[y][x] = Stone.EMPTY
+
+                            alpha = max(alpha, v)
+
+                            if beta <= alpha:
+                                pruning = True
+                                break
+                    if pruning:
+                        break
+                if pruning:
+                    break
+            return v
+        else:
+            v = float('inf')
+            pruning = False
+
+            for x in range(15):
+                for y in range(15):
+                    curStone = self.board[y][x]
+                    flag = False
+
+                    if curStone == Stone.EMPTY:
+                        for k in range(8):
+                            nx = x + dir_x[k]
+                            ny = y + dir_y[k]
+                            if Rule.is_invalid(nx, ny):
+                                continue
+                            if self.board[ny][nx] != Stone.EMPTY:
+                                flag = True
+                                break
+                        if flag:
+                            self.board[y][x] = Stone.BLACK
+                            v = min(v, self.alpha_beta_pruning(depth + 1, alpha, beta))
+                            self.board[y][x] = Stone.EMPTY
+
+                            beta = min(beta, v)
+
+                            if beta <= alpha:
+                                pruning = True
+                                break
+                    if pruning:
+                        break
+                if pruning:
+                    break
+            return v
+
     def evaluate(self):
         dir_x = [-1, 1, -1, 1, 0, 0, 1, -1]
         dir_y = [0, 0, -1, 1, -1, 1, -1, 1]
@@ -136,10 +237,6 @@ class Omok:
                 if self.board[y][x] == Stone.EMPTY:
                     continue
 
-                nx, ny = x, y
-                flag = False
-                is_one_space = False
-                is_one_side_block = False
                 cur_stone = self.board[y][x]
 
                 for k in range(0, 8, 2):
@@ -249,6 +346,7 @@ class Omok:
                         ai_weight += weight_sum
         return ai_weight - player_weight
 
+
 def main():
     pygame.init()
     surface = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
@@ -266,7 +364,8 @@ def main():
                 if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
                         event.pos
                 ):
-                    omok.append_stone(event.pos)
+                    omok.player_append_stone(event.pos)
+                    omok.ai_append_stone()
 
         omok.draw_stones()
         pygame.display.update()
