@@ -148,7 +148,7 @@ class Omok:
         dir_x = [-1, 1, -1, 1, 0, 0, 1, -1]
         dir_y = [0, 0, -1, 1, -1, 1, -1, 1]
 
-        if depth == 3:
+        if depth == 4:
             return self.evaluate()
 
         if depth % 2 == 0:
