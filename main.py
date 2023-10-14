@@ -359,7 +359,7 @@ def main():
     while is_running:
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
+                is_running = False
             elif event.type == MOUSEBUTTONUP:
                 if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
                         event.pos
