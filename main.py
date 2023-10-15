@@ -1,8 +1,7 @@
 import pygame
-from pygame.locals import *
 
 from Rule import Rule
-from common import *
+from common import BG_COLOR, BLACK, WINDOW_SIZE, Stone, GRID_NUM, GRID_SIZE
 
 fps = 60
 fps_clock = pygame.time.Clock()
@@ -358,9 +357,9 @@ def main():
 
     while is_running:
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 pygame.quit()
-            elif event.type == MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP:
                 if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
                         event.pos
                 ):
