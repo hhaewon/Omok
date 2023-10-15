@@ -1,4 +1,4 @@
-from common import *
+from common import GRID_NUM
 
 
 class Rule(object):
