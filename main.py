@@ -36,10 +36,18 @@ class Omok:
         """이미지 저장"""
         black_img = pygame.image.load("image/black.png")
         white_img = pygame.image.load("image/white.png")
+        last_black_img = pygame.image.load("image/black_a.png")
+        last_white_img = pygame.image.load("image/white_a.png")
         self.images = {
             "board": pygame.image.load("image/board.png"),
             "black": pygame.transform.scale(black_img, (GRID_SIZE, GRID_SIZE)),
             "white": pygame.transform.scale(white_img, (GRID_SIZE, GRID_SIZE)),
+            "last_black": pygame.transform.scale(
+                last_black_img, (GRID_SIZE, GRID_SIZE)
+            ),
+            "last_white": pygame.transform.scale(
+                last_white_img, (GRID_SIZE, GRID_SIZE)
+            ),
         }
 
     def draw_stone(self, stone, x, y):
@@ -58,6 +66,15 @@ class Omok:
                     self.draw_stone(Stone.BLACK, x, y)
                 case Stone.WHITE.value:
                     self.draw_stone(Stone.WHITE, x, y)
+
+        if self.coords:
+            x, y = self.coords[-1]
+            stone = (
+                self.images["last_black"]
+                if self.turn == Stone.WHITE
+                else self.images["last_white"]
+            )
+            self.surface.blit(stone, (x, y))
 
     def player_append_stone(self, position):
         coord = self.get_coord_contain_position(position)
@@ -254,7 +271,7 @@ class Omok:
 
                     is_one_side_block = False
 
-                    if k != 0 and (x == 0 or y == 0 or x == 14 or y == 14):
+                    if x == 0 or y == 0 or x == 14 or y == 14:
                         is_one_side_block = True
 
                     for i in range(4):
@@ -338,11 +355,11 @@ class Omok:
                         elif is_one_side_block and is_one_space:
                             weight_sum += 250
                         elif not is_one_side_block and not is_one_space:
-                            weight_sum += 1500
+                            weight_sum += 2200
                         else:
                             weight_sum += 660
                     elif stone_cnt == 5 or stone_cnt == 6:
-                        weight_sum += 2000
+                        weight_sum += 4500
 
                     if cur_stone == Stone.BLACK:
                         player_weight += weight_sum
@@ -369,7 +386,11 @@ def main():
                     event.pos
                 ):
                     omok.player_append_stone(event.pos)
+                    omok.draw_stones()
+                    pygame.display.update()
                     omok.ai_append_stone()
+                    pygame.time.delay(1000)
+
         omok.draw_stones()
         pygame.display.update()
         fps_clock.tick(fps)
