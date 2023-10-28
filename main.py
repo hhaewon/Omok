@@ -1,3 +1,5 @@
+import random
+
 import pygame
 from pygame.locals import *
 
@@ -178,7 +180,7 @@ class Omok:
                             self.board[y][x] = Stone.WHITE
                             temp = self.alpha_beta_pruning(depth + 1, alpha, beta)
 
-                            if v < temp:
+                            if v < temp or (v == temp and random.choice([0, 1]) == 0):
                                 v = temp
                                 if depth == 0:
                                     self.aiX = x
