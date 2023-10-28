@@ -70,6 +70,8 @@ class Omok:
         self.turn = Stone.WHITE
 
     def ai_append_stone(self):
+        if self.winner_stone == Stone.BLACK:
+            return
         self.alpha_beta_pruning(0, float('-inf'), float('inf'))
         coord = self.get_coord(self.aiX, self.aiY)
         self.coords.append(coord)
@@ -148,7 +150,8 @@ class Omok:
         dir_x = [-1, 1, -1, 1, 0, 0, 1, -1]
         dir_y = [0, 0, -1, 1, -1, 1, -1, 1]
 
-        if depth == 3:
+        max_depth = max(-self.id // 30 + 3, 1)
+        if depth == max_depth:
             return self.evaluate()
 
         if depth % 2 == 0:
@@ -330,9 +333,9 @@ class Omok:
                             weight_sum += 360
                     elif stone_cnt == 4:
                         if is_one_side_block and not is_one_space:
-                            weight_sum += 200
+                            weight_sum += 300
                         elif is_one_side_block and is_one_space:
-                            weight_sum += 190
+                            weight_sum += 250
                         elif not is_one_side_block and not is_one_space:
                             weight_sum += 1500
                         else:
@@ -361,12 +364,10 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
             elif event.type == MOUSEBUTTONUP:
-                if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
-                        event.pos
-                ):
+                if (not omok.is_position_invalid(event.pos)
+                        and omok.is_position_empty(event.pos)):
                     omok.player_append_stone(event.pos)
                     omok.ai_append_stone()
-
         omok.draw_stones()
         pygame.display.update()
         fps_clock.tick(fps)
