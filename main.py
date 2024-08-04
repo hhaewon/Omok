@@ -1,4 +1,6 @@
+import os
 import random
+import sys
 
 import pygame
 
@@ -7,6 +9,12 @@ from common import BG_COLOR, BLACK, WINDOW_SIZE, Stone, GRID_NUM, GRID_SIZE
 
 fps = 60
 fps_clock = pygame.time.Clock()
+
+try:
+    os.chdir(sys._MEIPASS)
+    print(sys._MEIPASS)
+except:
+    os.chdir(os.getcwd())
 
 
 class Omok:
@@ -24,7 +32,7 @@ class Omok:
             for x in range(GRID_NUM)
             for y in range(GRID_NUM)
         ]
-        self.font = pygame.font.Font("NotoSans-Regular.ttf", 20)
+        self.font = pygame.font.Font("font/NotoSans-Regular.ttf", 20)
         self.winner_stone = Stone.EMPTY
         self.aiX = None
         self.aiY = None
