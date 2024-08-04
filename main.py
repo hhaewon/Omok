@@ -355,7 +355,7 @@ class Omok:
                         elif is_one_side_block and is_one_space:
                             weight_sum += 250
                         elif not is_one_side_block and not is_one_space:
-                            weight_sum += 2200
+                            weight_sum += 3000
                         else:
                             weight_sum += 660
                     elif stone_cnt == 5 or stone_cnt == 6:
