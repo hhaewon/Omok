@@ -1,20 +1,13 @@
-import os
 import random
-import sys
 
 import pygame
+from pygame.locals import *
 
 from Rule import Rule
-from common import BG_COLOR, BLACK, WINDOW_SIZE, Stone, GRID_NUM, GRID_SIZE
+from common import *
 
 fps = 60
 fps_clock = pygame.time.Clock()
-
-try:
-    os.chdir(sys._MEIPASS)
-    print(sys._MEIPASS)
-except:
-    os.chdir(os.getcwd())
 
 
 class Omok:
@@ -32,7 +25,7 @@ class Omok:
             for x in range(GRID_NUM)
             for y in range(GRID_NUM)
         ]
-        self.font = pygame.font.Font("font/NotoSans-Regular.ttf", 20)
+        self.font = pygame.font.Font("NotoSans-Regular.ttf", 20)
         self.winner_stone = Stone.EMPTY
         self.aiX = None
         self.aiY = None
@@ -44,18 +37,10 @@ class Omok:
         """이미지 저장"""
         black_img = pygame.image.load("image/black.png")
         white_img = pygame.image.load("image/white.png")
-        last_black_img = pygame.image.load("image/black_a.png")
-        last_white_img = pygame.image.load("image/white_a.png")
         self.images = {
             "board": pygame.image.load("image/board.png"),
             "black": pygame.transform.scale(black_img, (GRID_SIZE, GRID_SIZE)),
             "white": pygame.transform.scale(white_img, (GRID_SIZE, GRID_SIZE)),
-            "last_black": pygame.transform.scale(
-                last_black_img, (GRID_SIZE, GRID_SIZE)
-            ),
-            "last_white": pygame.transform.scale(
-                last_white_img, (GRID_SIZE, GRID_SIZE)
-            ),
         }
 
     def draw_stone(self, stone, x, y):
@@ -74,15 +59,6 @@ class Omok:
                     self.draw_stone(Stone.BLACK, x, y)
                 case Stone.WHITE.value:
                     self.draw_stone(Stone.WHITE, x, y)
-
-        if self.coords:
-            x, y = self.coords[-1]
-            stone = (
-                self.images["last_black"]
-                if self.turn == Stone.WHITE
-                else self.images["last_white"]
-            )
-            self.surface.blit(stone, (x, y))
 
     def player_append_stone(self, position):
         coord = self.get_coord_contain_position(position)
@@ -279,7 +255,7 @@ class Omok:
 
                     is_one_side_block = False
 
-                    if x == 0 or y == 0 or x == 14 or y == 14:
+                    if k != 0 and (x == 0 or y == 0 or x == 14 or y == 14):
                         is_one_side_block = True
 
                     for i in range(4):
@@ -363,11 +339,11 @@ class Omok:
                         elif is_one_side_block and is_one_space:
                             weight_sum += 250
                         elif not is_one_side_block and not is_one_space:
-                            weight_sum += 3000
+                            weight_sum += 1500
                         else:
                             weight_sum += 660
                     elif stone_cnt == 5 or stone_cnt == 6:
-                        weight_sum += 4500
+                        weight_sum += 2000
 
                     if cur_stone == Stone.BLACK:
                         player_weight += weight_sum
@@ -387,18 +363,14 @@ def main():
 
     while is_running:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == QUIT:
                 pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == MOUSEBUTTONUP:
                 if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
                     event.pos
                 ):
                     omok.player_append_stone(event.pos)
-                    omok.draw_stones()
-                    pygame.display.update()
                     omok.ai_append_stone()
-                    pygame.time.delay(1000)
-
         omok.draw_stones()
         pygame.display.update()
         fps_clock.tick(fps)
