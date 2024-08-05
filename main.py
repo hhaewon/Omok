@@ -357,6 +357,7 @@ def main():
                 ):
                     omok.player_append_stone(event.pos)
                     omok.draw_stones()
+                    pygame.display.update()
                     omok.ai_append_stone()
         omok.draw_stones()
         pygame.display.update()
