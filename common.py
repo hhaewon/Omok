@@ -1,4 +1,6 @@
+from ast import While
 from enum import Enum, auto
+from uu import Error
 
 BG_COLOR = (128, 128, 128)
 BLACK = (0, 0, 0)
@@ -16,3 +18,12 @@ class Stone(Enum):
     BLACK = auto()
     WHITE = auto()
     EMPTY = auto()
+
+    def get_toggle_color(self):
+        if self == Stone.EMPTY:
+            return Stone.EMPTY
+
+        if self == Stone.BLACK:
+            return Stone.WHITE
+        else:
+            return Stone.BLACK
