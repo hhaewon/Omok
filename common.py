@@ -1,6 +1,4 @@
-from ast import While
 from enum import Enum, auto
-from uu import Error
 
 BG_COLOR = (128, 128, 128)
 BLACK = (0, 0, 0)

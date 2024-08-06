@@ -2,9 +2,8 @@ import random
 import pygame
 import sys
 import os
-from pygame.locals import *
 from Rule import Rule
-from common import *
+from common import BG_COLOR, BLACK, GRID_NUM, GRID_SIZE, WHITE, WINDOW_SIZE, Stone
 
 # Constants
 fps = 60
@@ -13,7 +12,7 @@ fps_clock = pygame.time.Clock()
 try:
     os.chdir(sys._MEIPASS)
     print(sys._MEIPASS)
-except:
+except Exception:
     os.chdir(os.getcwd())
 
 
@@ -148,7 +147,7 @@ class Omok:
         return self.is_board_full() or self.rule.is_game_over(x, y, stone)
 
     def make_text(self, text, left, top):
-        surf = self.font.render(text, False, BLACK, BG_COLOR)
+        surf = self.font.render(text, False, BLACK, WHITE)
         rect = surf.get_rect()
         rect.center = (left, top)
         self.surface.blit(surf, rect)
@@ -162,6 +161,7 @@ class Omok:
         }
         center_x = WINDOW_SIZE // 2
 
+        self.make_text("Click to Quit", center_x, 60)
         for i in range(3):
             self.make_text(msg[stone], center_x, 30)
             pygame.display.update()
@@ -365,24 +365,26 @@ def main():
 
     while is_running:
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 is_running = False
                 pygame.quit()
-            elif event.type == MOUSEBUTTONUP:
-                if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
-                    event.pos
-                ):
-                    omok.player_append_stone(event.pos)
-                    omok.draw_stones()
-                    pygame.display.update()
-                    omok.ai_append_stone()
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if not omok.is_game_over:
+                    if not omok.is_position_invalid(
+                        event.pos
+                    ) and omok.is_position_empty(event.pos):
+                        omok.player_append_stone(event.pos)
+                        omok.draw_stones()
+                        pygame.display.update()
+                        omok.ai_append_stone()
+                else:
+                    is_running = False
         omok.draw_stones()
         pygame.display.update()
         fps_clock.tick(fps)
 
         if omok.is_game_over:
             omok.show_winner_msg()
-            is_running = False
 
 
 if __name__ == "__main__":
