@@ -161,7 +161,6 @@ class Omok:
         }
         center_x = WINDOW_SIZE // 2
 
-        self.make_text("Click to Quit", center_x, 60)
         for i in range(3):
             self.make_text(msg[stone], center_x, 30)
             pygame.display.update()
@@ -345,12 +344,12 @@ class Omok:
                             weight_sum += 660
 
                     elif stone_cnt >= 5:
-                        weight_sum += 4000
+                        weight_sum += 6000
 
                     if cur_stone == Stone.BLACK:
                         player_weight += weight_sum * 1.7
                     else:
-                        ai_weight += weight_sum * 0.8
+                        ai_weight += weight_sum * 0.7
         return ai_weight - player_weight
 
 
@@ -369,22 +368,21 @@ def main():
                 is_running = False
                 pygame.quit()
             elif event.type == pygame.MOUSEBUTTONUP:
-                if not omok.is_game_over:
-                    if not omok.is_position_invalid(
-                        event.pos
-                    ) and omok.is_position_empty(event.pos):
-                        omok.player_append_stone(event.pos)
-                        omok.draw_stones()
-                        pygame.display.update()
-                        omok.ai_append_stone()
-                else:
-                    is_running = False
+                if not omok.is_position_invalid(event.pos) and omok.is_position_empty(
+                    event.pos
+                ):
+                    omok.player_append_stone(event.pos)
+                    omok.draw_stones()
+                    pygame.display.update()
+                    omok.ai_append_stone()
+
         omok.draw_stones()
         pygame.display.update()
         fps_clock.tick(fps)
 
         if omok.is_game_over:
             omok.show_winner_msg()
+            is_running = False
 
 
 if __name__ == "__main__":
