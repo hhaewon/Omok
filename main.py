@@ -45,10 +45,18 @@ class Omok:
         try:
             black_img = pygame.image.load("image/black.png")
             white_img = pygame.image.load("image/white.png")
+            last_black_img = pygame.image.load("image/black_a.png")
+            last_white_img = pygame.image.load("image/white_a.png")
             self.images = {
                 "board": pygame.image.load("image/board.png"),
                 "black": pygame.transform.scale(black_img, (GRID_SIZE, GRID_SIZE)),
                 "white": pygame.transform.scale(white_img, (GRID_SIZE, GRID_SIZE)),
+                "last_black": pygame.transform.scale(
+                    last_black_img, (GRID_SIZE, GRID_SIZE)
+                ),
+                "last_white": pygame.transform.scale(
+                    last_white_img, (GRID_SIZE, GRID_SIZE)
+                ),
             }
         except pygame.error as e:
             print(f"Error loading images: {e}")
@@ -67,6 +75,15 @@ class Omok:
         for i, (x, y) in enumerate(self.coords):
             stone = Stone.BLACK if i % 2 == 0 else Stone.WHITE
             self.draw_stone(stone, x, y)
+
+        if self.coords:
+            x, y = self.coords[-1]
+            stone = (
+                self.images["last_black"]
+                if self.turn == Stone.WHITE
+                else self.images["last_white"]
+            )
+            self.surface.blit(stone, (x, y))
 
     def player_append_stone(self, position):
         """Add a stone placed by the player"""
@@ -140,8 +157,8 @@ class Omok:
         stone = self.winner_stone
         msg = {
             Stone.EMPTY: "",
-            Stone.BLACK: "Black Win!!",
-            Stone.WHITE: "White Win!!",
+            Stone.BLACK: "Player Win!!",
+            Stone.WHITE: "AI Win!!",
         }
         center_x = WINDOW_SIZE // 2
 
@@ -230,7 +247,7 @@ class Omok:
                 cur_stone = self.board[y][x]
 
                 for k in range(0, 8, 2):
-                    if self.rule.is_fit_five(x, y, k):
+                    if not self.rule.is_fit_five(x, y, k):
                         continue
 
                     nx, ny = x, y
@@ -319,13 +336,13 @@ class Omok:
                             weight_sum += 360
                     elif stone_cnt == 4:
                         if is_one_side_block and not is_one_space:
-                            weight_sum += 1400
+                            weight_sum += 400
                         elif is_one_side_block and is_one_space:
-                            weight_sum += 1300
+                            weight_sum += 300
                         elif not is_one_side_block and not is_one_space:
                             weight_sum += 1500
                         else:
-                            weight_sum += 1500
+                            weight_sum += 660
 
                     elif stone_cnt >= 5:
                         weight_sum += 4000
